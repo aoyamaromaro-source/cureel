@@ -84,6 +84,12 @@ export interface AnilistRelationEdge {
   };
 }
 
+export interface AnilistTrailer {
+  id: string;
+  site: string;
+  thumbnail: string | null;
+}
+
 export interface AnilistMedia {
   id: number;
   title: AnilistTitle;
@@ -105,6 +111,7 @@ export interface AnilistMedia {
   airingSchedule: { nodes: AnilistAiringEpisode[] };
   relations: { edges: AnilistRelationEdge[] };
   externalLinks: AnilistExternalLink[];
+  trailer: AnilistTrailer | null;
   siteUrl: string | null;
   staff: { edges: AnilistStaffEdge[] };
   characters: { edges: AnilistCharacterEdge[] };

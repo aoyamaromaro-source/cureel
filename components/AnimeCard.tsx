@@ -210,7 +210,12 @@ export function AnimeCard({ media, subscriptions, isSequel, onWatchlistChange }:
               {(() => {
                 const officialSite = media.externalLinks.find((l) => l.site === "Official Site");
                 const youtube = media.externalLinks.find((l) => l.site === "YouTube");
-                if (!officialSite && !youtube) return null;
+                const trailerUrl =
+                  youtube?.url ??
+                  (media.trailer?.site === "youtube"
+                    ? `https://www.youtube.com/watch?v=${media.trailer.id}`
+                    : null);
+                if (!officialSite && !trailerUrl) return null;
                 return (
                   <div className="space-y-2">
                     {officialSite && (
@@ -227,9 +232,9 @@ export function AnimeCard({ media, subscriptions, isSequel, onWatchlistChange }:
                         公式サイト
                       </a>
                     )}
-                    {youtube && (
+                    {trailerUrl && (
                       <a
-                        href={youtube.url}
+                        href={trailerUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}

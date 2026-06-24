@@ -24,6 +24,7 @@ export const MEDIA_FIELDS = /* GraphQL */ `
     }
   }
   externalLinks { id site url type language color icon }
+  trailer { id site thumbnail }
   siteUrl
   characters(perPage: 8, sort: [ROLE]) {
     edges {

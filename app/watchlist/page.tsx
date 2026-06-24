@@ -41,7 +41,7 @@ function shellMedia(entry: StoredEntry): AnilistMedia {
     description: null, nextAiringEpisode: null,
     airingSchedule: { nodes: [] },
     relations: { edges: [] },
-    externalLinks: [], siteUrl: null,
+    externalLinks: [], trailer: null, siteUrl: null,
     staff: { edges: [] }, characters: { edges: [] },
   };
 }
