@@ -8,6 +8,11 @@ import { PlatformEditor } from "./PlatformEditor";
 import { addToWatchlist, removeFromWatchlist, isInWatchlist } from "@/lib/watchlist";
 import { getManualPlatforms } from "@/lib/manualPlatforms";
 
+function getYoutubeId(url: string): string | null {
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?/]+)/);
+  return m ? m[1] : null;
+}
+
 interface Props {
   media: AnilistMedia;
   subscriptions: Platform[];
@@ -73,6 +78,8 @@ export function AnimeCard({ media, subscriptions, isSequel, onWatchlistChange }:
         className={`group relative bg-gray-900 rounded-xl overflow-hidden border transition-all cursor-pointer ${
           isSequel
             ? "border-yellow-500/60 shadow-yellow-500/10 shadow-lg"
+            : inWatchlist
+            ? "border-violet-500 shadow-violet-500/20 shadow-md"
             : "border-gray-800 hover:border-gray-700"
         }`}
         onClick={() => setExpanded((v) => !v)}
@@ -83,17 +90,21 @@ export function AnimeCard({ media, subscriptions, isSequel, onWatchlistChange }:
           </div>
         )}
 
-        {/* Watchlist button */}
+        {/* Watchlist checkbox */}
         <button
           onClick={toggleWatchlist}
-          className={`absolute top-2 right-2 z-10 w-7 h-7 rounded-full flex items-center justify-center text-sm transition-all ${
+          className={`absolute top-2 right-2 z-10 w-6 h-6 rounded flex items-center justify-center transition-all border-2 ${
             inWatchlist
-              ? "bg-violet-600 text-white"
-              : "bg-gray-900/80 text-gray-400 opacity-0 group-hover:opacity-100"
+              ? "bg-violet-600 border-violet-600 text-white"
+              : "bg-gray-900/80 border-gray-400 text-transparent hover:border-gray-200"
           }`}
           title={inWatchlist ? "リストから削除" : "視聴リストに追加"}
         >
-          {inWatchlist ? "✓" : "+"}
+          {inWatchlist && (
+            <svg className="w-3.5 h-3.5" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M2 7l3.5 3.5L12 3" />
+            </svg>
+          )}
         </button>
 
         {/* Cover */}
@@ -199,6 +210,56 @@ export function AnimeCard({ media, subscriptions, isSequel, onWatchlistChange }:
                 </button>
               </div>
 
+              {/* Official site + YouTube */}
+              {(() => {
+                const officialSite = media.externalLinks.find((l) => l.site === "Official Site");
+                const youtube = media.externalLinks.find((l) => l.site === "YouTube");
+                const ytId = youtube ? getYoutubeId(youtube.url) : null;
+                if (!officialSite && !ytId) return null;
+                return (
+                  <div className="space-y-2">
+                    {officialSite && (
+                      <a
+                        href={officialSite.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1.5 text-[11px] bg-gray-800 hover:bg-gray-700 text-gray-300 px-2.5 py-1.5 rounded transition-colors"
+                      >
+                        <svg className="w-3 h-3 shrink-0" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+                          <path d="M2 10L10 2M10 2H5M10 2v5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                        公式サイト
+                      </a>
+                    )}
+                    {ytId && (
+                      <a
+                        href={youtube!.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="relative block rounded overflow-hidden group/yt"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`}
+                          alt="予告動画"
+                          className="w-full rounded"
+                        />
+                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 group-hover/yt:bg-black/55 transition-colors rounded">
+                          <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
+                            <svg className="w-4 h-4 text-white ml-0.5" viewBox="0 0 16 16" fill="currentColor">
+                              <path d="M5 3.5l9 4.5-9 4.5V3.5z"/>
+                            </svg>
+                          </div>
+                          <span className="text-[10px] text-white/90 mt-1.5 font-medium">予告動画を見る</span>
+                        </div>
+                      </a>
+                    )}
+                  </div>
+                );
+              })()}
+
               {/* Score/popularity + AniList link */}
               <div className="flex items-center justify-between gap-2">
                 {media.averageScore ? (
@@ -214,7 +275,7 @@ export function AnimeCard({ media, subscriptions, isSequel, onWatchlistChange }:
                     onClick={(e) => e.stopPropagation()}
                     className="inline-flex items-center gap-1 text-[10px] text-violet-400 hover:text-violet-300 transition-colors shrink-0"
                   >
-                    AniList
+                    作品詳細
                     <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
                       <path d="M2 10L10 2M10 2H5M10 2v5" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
