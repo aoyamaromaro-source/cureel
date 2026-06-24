@@ -8,10 +8,6 @@ import { PlatformEditor } from "./PlatformEditor";
 import { addToWatchlist, removeFromWatchlist, isInWatchlist } from "@/lib/watchlist";
 import { getManualPlatforms } from "@/lib/manualPlatforms";
 
-function getYoutubeId(url: string): string | null {
-  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&?/]+)/);
-  return m ? m[1] : null;
-}
 
 interface Props {
   media: AnilistMedia;
@@ -214,8 +210,7 @@ export function AnimeCard({ media, subscriptions, isSequel, onWatchlistChange }:
               {(() => {
                 const officialSite = media.externalLinks.find((l) => l.site === "Official Site");
                 const youtube = media.externalLinks.find((l) => l.site === "YouTube");
-                const ytId = youtube ? getYoutubeId(youtube.url) : null;
-                if (!officialSite && !ytId) return null;
+                if (!officialSite && !youtube) return null;
                 return (
                   <div className="space-y-2">
                     {officialSite && (
@@ -232,28 +227,18 @@ export function AnimeCard({ media, subscriptions, isSequel, onWatchlistChange }:
                         公式サイト
                       </a>
                     )}
-                    {ytId && (
+                    {youtube && (
                       <a
-                        href={youtube!.url}
+                        href={youtube.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
-                        className="relative block rounded overflow-hidden group/yt"
+                        className="inline-flex items-center gap-1.5 text-[11px] bg-red-600 hover:bg-red-500 text-white px-2.5 py-1.5 rounded transition-colors"
                       >
-                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img
-                          src={`https://img.youtube.com/vi/${ytId}/hqdefault.jpg`}
-                          alt="予告動画"
-                          className="w-full rounded"
-                        />
-                        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/40 group-hover/yt:bg-black/55 transition-colors rounded">
-                          <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
-                            <svg className="w-4 h-4 text-white ml-0.5" viewBox="0 0 16 16" fill="currentColor">
-                              <path d="M5 3.5l9 4.5-9 4.5V3.5z"/>
-                            </svg>
-                          </div>
-                          <span className="text-[10px] text-white/90 mt-1.5 font-medium">予告動画を見る</span>
-                        </div>
+                        <svg className="w-3 h-3 shrink-0" viewBox="0 0 16 16" fill="currentColor">
+                          <path d="M5 3.5l9 4.5-9 4.5V3.5z"/>
+                        </svg>
+                        予告を見る
                       </a>
                     )}
                   </div>
