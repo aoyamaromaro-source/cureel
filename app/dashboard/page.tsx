@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { getWatchlist, getEntrySeasonKey } from "@/lib/watchlist";
 import { getAllRatings } from "@/lib/ratings";
 import { getCachedMediaBatch, setCachedMediaBatch } from "@/lib/mediaCache";
@@ -11,7 +11,6 @@ import { SEASONS } from "@/lib/seasonMeta";
 import type { AnilistMedia, StoredEntry } from "@/types";
 
 export default function DashboardPage() {
-  const router = useRouter();
   const [entries, setEntries] = useState<StoredEntry[]>([]);
   const [mediaMap, setMediaMap] = useState<Map<number, AnilistMedia>>(new Map());
   const [ratings, setRatings] = useState<Record<string, number>>({});
@@ -128,22 +127,28 @@ export default function DashboardPage() {
               className={`rounded-xl border ${s.border} bg-gradient-to-b ${s.color} overflow-hidden`}
             >
               {/* Compact season header */}
-              <div
-                onClick={() => sEntries.length > 0 && router.push(`/dashboard/${key}`)}
-                className={`px-4 py-2 flex items-center gap-2 ${
-                  sEntries.length > 0 ? "cursor-pointer hover:bg-white/5 transition-colors" : ""
-                }`}
-                title={sEntries.length > 0 ? "クールのサマリーを見る" : undefined}
-              >
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${s.badge}`}>
-                  {s.label}クール
-                </span>
-                <span className="text-xs text-gray-500">{s.months}</span>
-                <span className="ml-auto text-xs text-gray-500 font-medium">{sEntries.length}作品</span>
-                {sEntries.length > 0 && (
+              {sEntries.length > 0 ? (
+                <Link
+                  href={`/dashboard/${key}`}
+                  className="px-4 py-2 flex items-center gap-2 hover:bg-white/5 transition-colors"
+                  title="クールのサマリーを見る"
+                >
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${s.badge}`}>
+                    {s.label}クール
+                  </span>
+                  <span className="text-xs text-gray-500">{s.months}</span>
+                  <span className="ml-auto text-xs text-gray-500 font-medium">{sEntries.length}作品</span>
                   <span className="text-gray-500 text-xs" aria-hidden>›</span>
-                )}
-              </div>
+                </Link>
+              ) : (
+                <div className="px-4 py-2 flex items-center gap-2">
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${s.badge}`}>
+                    {s.label}クール
+                  </span>
+                  <span className="text-xs text-gray-500">{s.months}</span>
+                  <span className="ml-auto text-xs text-gray-500 font-medium">{sEntries.length}作品</span>
+                </div>
+              )}
 
               {/* Single-row horizontal scroll cover strip */}
               {sEntries.length === 0 ? (
