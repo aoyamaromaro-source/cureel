@@ -2,20 +2,16 @@
 
 import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { getWatchlist, getEntrySeasonKey } from "@/lib/watchlist";
 import { getAllRatings } from "@/lib/ratings";
 import { getCachedMediaBatch, setCachedMediaBatch } from "@/lib/mediaCache";
 import { RatingDisplay } from "@/components/StarRating";
+import { SEASONS } from "@/lib/seasonMeta";
 import type { AnilistMedia, StoredEntry } from "@/types";
 
-const SEASONS = [
-  { key: "WINTER", label: "冬", months: "1〜3月", color: "from-blue-900/40 to-blue-950/60", border: "border-blue-800/40", badge: "bg-blue-800/50 text-blue-300" },
-  { key: "SPRING", label: "春", months: "4〜6月", color: "from-pink-900/40 to-pink-950/60", border: "border-pink-800/40", badge: "bg-pink-800/50 text-pink-300" },
-  { key: "SUMMER", label: "夏", months: "7〜9月", color: "from-amber-900/40 to-amber-950/60", border: "border-amber-800/40", badge: "bg-amber-800/50 text-amber-300" },
-  { key: "FALL",   label: "秋", months: "10〜12月", color: "from-orange-900/40 to-orange-950/60", border: "border-orange-800/40", badge: "bg-orange-800/50 text-orange-300" },
-] as const;
-
 export default function DashboardPage() {
+  const router = useRouter();
   const [entries, setEntries] = useState<StoredEntry[]>([]);
   const [mediaMap, setMediaMap] = useState<Map<number, AnilistMedia>>(new Map());
   const [ratings, setRatings] = useState<Record<string, number>>({});
@@ -132,12 +128,21 @@ export default function DashboardPage() {
               className={`rounded-xl border ${s.border} bg-gradient-to-b ${s.color} overflow-hidden`}
             >
               {/* Compact season header */}
-              <div className="px-4 py-2 flex items-center gap-2">
+              <div
+                onClick={() => sEntries.length > 0 && router.push(`/dashboard/${key}`)}
+                className={`px-4 py-2 flex items-center gap-2 ${
+                  sEntries.length > 0 ? "cursor-pointer hover:bg-white/5 transition-colors" : ""
+                }`}
+                title={sEntries.length > 0 ? "クールのサマリーを見る" : undefined}
+              >
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${s.badge}`}>
                   {s.label}クール
                 </span>
                 <span className="text-xs text-gray-500">{s.months}</span>
                 <span className="ml-auto text-xs text-gray-500 font-medium">{sEntries.length}作品</span>
+                {sEntries.length > 0 && (
+                  <span className="text-gray-500 text-xs" aria-hidden>›</span>
+                )}
               </div>
 
               {/* Single-row horizontal scroll cover strip */}
